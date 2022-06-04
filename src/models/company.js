@@ -3,11 +3,27 @@ const Schema = mongoose.Schema;
 
 const companySchema = new Schema(
     {
-    title:{
+    code:{
         type: String,
         required: true
     },
-    creator:{
+    name:{
+        type: String,
+        required: true
+        },
+    ceo:{
+        type: String,
+        required: true
+        },
+    turnover:{
+        type: String,
+        required: true
+        },
+    website:{
+        type: String,
+        required: true
+        },
+    exchange:{
         type: String,
         required: true
         }

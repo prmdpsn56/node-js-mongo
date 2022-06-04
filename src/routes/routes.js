@@ -2,9 +2,16 @@ const express = require('express');
 const controllers = require('../controllers/controller');
 const router = express.Router();
 
+//Register Companies
+router.post('/register',controllers.createCompany);
 
-router.get('/stock',controllers.getResponse);
-router.post('/createCompany',controllers.createCompany)
+//Find Companies
+router.get('/getall',controllers.findCompanies);
 
-// you can use this below export if this router is an extension of other route
+//get particular company record
+router.get('/info/:companycode',controllers.findCompany);
+
+//delete the company record
+router.delete('/delete/:companycode',controllers.deleteCompany);
+
 module.exports = router;

@@ -1,5 +1,5 @@
 const express = require('express');
-const newRoutes = require('./routes/routes');
+const companyRoutes = require('./routes/routes');
 const mongoose = require('mongoose');
 
 const app = express();
@@ -9,14 +9,15 @@ app.use((req,res,next)=>{
     res.setHeader('Access-Control-Allow-Origin','*');
     res.setHeader('Access-Control-Allow-Methods','GET,POST,PUT,PATCH,DELETE,OPTIONS');
     // define the settings of the below headers
-    res.setHeader('Access-Control-Allow-Headers','Content-Type,Authorization');
+    // res.setHeader('Access-Control-Allow-Headers','Content-Type,Authorization');
     next();
 })
-app.use(newRoutes);
+app.use('/company',companyRoutes);
+
 
 app.use('/',(req,res)=>{
     res.status(200).send({
-        message:'mongo db'
+        message:'mongo db is connected to the application'
     })
 })
 
