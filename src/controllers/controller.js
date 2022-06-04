@@ -50,7 +50,6 @@ exports.findCompany = async (req,res,send) => {
 
 exports.deleteCompany = async (req,res,send) => {
         const code = req.params.companycode.toLowerCase();
-        console.log(code);
         const response = await Company.deleteOne({code:code})
         if(response.deletedCount === 0){
             res.status(404).json({'message':'no record found to be deleted'});
