@@ -1,4 +1,5 @@
 const Company = require('../models/company');
+const axios = require('axios')
 
 exports.findCompanies = async (req,res,send) => {
     const all_companies = await Company.find({}).select('-createdAt -updatedAt -__v');
@@ -26,7 +27,11 @@ exports.createCompany = async (req,res,send) => {
         exchange: req.body.exchange
     });
     try {
+        //create a default company stock
         const response = await company.save();
+        const stock_register = axios.post('http://localhost:8000/api/stock',{
+            code:company_code
+        })
         res.status(200).send(response);
     } catch (error) {
         console.log(error);
@@ -34,15 +39,17 @@ exports.createCompany = async (req,res,send) => {
 }
 
 exports.findCompany = async (req,res,send) => {
-        const code = req.params.companycode.toLowerCase();
+        const company_code = req.params.companycode.toLowerCase();
         try {
-            const company = await Company.find({code:code});
+            const company = await Company.find({code:company_code}).lean();
             if(company.length === 0){
                 res.status(404).json({'message':'No company found with this name'})
                 return;
             }
-            res.status(200).json({'company':company});
-            
+            // stocks fetching from the other database
+            const stocks = await axios.get('http://localhost:8000/api/stocks/'+company_code);
+            let result = {...company[0],stocksValue:stocks.data};
+            res.status(200).json(result);
         } catch (error) {
             console.log(error);
         }
@@ -51,6 +58,7 @@ exports.findCompany = async (req,res,send) => {
 exports.deleteCompany = async (req,res,send) => {
         const code = req.params.companycode.toLowerCase();
         const response = await Company.deleteOne({code:code})
+        await axios.delete('http://localhost:8000/api/stocks/'+code);
         if(response.deletedCount === 0){
             res.status(404).json({'message':'no record found to be deleted'});
             return;
