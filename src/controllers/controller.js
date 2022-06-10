@@ -1,5 +1,6 @@
 const Company = require('../models/company');
 const axios = require('axios')
+const amqpFunctions = require('../app');
 
 exports.findCompanies = async (req, res, send) => {
     const all_companies = await Company.find({}).select('-createdAt -updatedAt -__v');
@@ -11,10 +12,11 @@ exports.findCompanies = async (req, res, send) => {
 }
 
 exports.createCompany = async (req, res, send) => {
-    const company_code = req.body.code.toLowerCase()
+    const company_code = await req.body.code.toLowerCase()
     const company_exists = await Company.find({
         code: company_code
     }).countDocuments();
+    
     if (company_exists) {
         //error code 409 for double conflict
         res.status(409).json({
@@ -33,9 +35,7 @@ exports.createCompany = async (req, res, send) => {
     try {
         //create a default company stock
         const response = await company.save();
-        const stock_register = axios.post('http://localhost:8000/api/stock', {
-            code: company_code
-        })
+        amqpFunctions.sendMessageToQueue('company_created',company_code);
         res.status(200).send(response);
     } catch (error) {
         console.log(error);
@@ -67,11 +67,11 @@ exports.findCompany = async (req, res, send) => {
 }
 
 exports.deleteCompany = async (req, res, send) => {
-    const code = req.params.companycode.toLowerCase();
+    const company_code = req.params.companycode.toLowerCase();
     const response = await Company.deleteOne({
-        code: code
+        code: company_code
     })
-    await axios.delete('http://localhost:8000/api/stocks/' + code);
+    amqpFunctions.sendMessageToQueue('company_deleted',company_code);
     if (response.deletedCount === 0) {
         res.status(404).json({
             'message': 'no record found to be deleted'
@@ -79,6 +79,6 @@ exports.deleteCompany = async (req, res, send) => {
         return;
     }
     res.status(200).json({
-        'message': code + ' is deleted from the database'
+        'message': company_code + ' is deleted from the database'
     });
 }
