@@ -55,10 +55,13 @@ exports.findCompany = async (req, res, send) => {
             return;
         }
         // stocks fetching from the other database
-        const stocks = await axios.get('http://localhost:8000/api/stocks/' + company_code);
+        let response =  await amqpFunctions.rpc(company_code)
+        let stocks = JSON.parse(response)
+        console.log(stocks);
+        // const stocks = await axios.get('http://localhost:8000/api/stocks/' + company_code);
         let result = {
             ...company[0],
-            stocksValue: stocks.data
+            stocksValue: stocks
         };
         res.status(200).json(result);
     } catch (error) {
