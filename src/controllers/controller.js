@@ -16,7 +16,7 @@ exports.createCompany = async (req, res, send) => {
     const company_exists = await Company.find({
         code: company_code
     }).countDocuments();
-    
+
     if (company_exists) {
         //error code 409 for double conflict
         res.status(409).json({
@@ -35,10 +35,11 @@ exports.createCompany = async (req, res, send) => {
     try {
         //create a default company stock
         const response = await company.save();
-        amqpFunctions.sendMessageToQueue('company_created',company_code);
+        amqpFunctions.sendMessageToQueue('company_created', company_code);
         res.status(200).send(response);
     } catch (error) {
         console.log(error);
+        res.status(400).json({response:'api not working properly, team looking into it'});
     }
 }
 
@@ -54,18 +55,17 @@ exports.findCompany = async (req, res, send) => {
             })
             return;
         }
-        // stocks fetching from the other database
-        let response =  await amqpFunctions.rpc(company_code)
+        let response = await amqpFunctions.rpc(company_code)
         let stocks = JSON.parse(response)
-        console.log(stocks);
-        // const stocks = await axios.get('http://localhost:8000/api/stocks/' + company_code);
         let result = {
             ...company[0],
             stocksValue: stocks
         };
         res.status(200).json(result);
     } catch (error) {
-        console.log(error);
+        res.status(400).json({
+            'message': 'problem with the api, team looking into it'
+        });
     }
 }
 
@@ -74,7 +74,7 @@ exports.deleteCompany = async (req, res, send) => {
     const response = await Company.deleteOne({
         code: company_code
     })
-    amqpFunctions.sendMessageToQueue('company_deleted',company_code);
+    amqpFunctions.sendMessageToQueue('company_deleted', company_code);
     if (response.deletedCount === 0) {
         res.status(404).json({
             'message': 'no record found to be deleted'

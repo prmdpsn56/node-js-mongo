@@ -50,10 +50,6 @@ exports.rpc = async (companyCode) => {
         if(msg.properties.correlationId === uuid){
                 result = msg.content.toString();
                 console.log(result);
-                setTimeout(() => {
-                   connection.close();
-                   process.exit(0);
-                }, 2000);
         }
     },{noAck:true});
     return result;
