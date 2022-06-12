@@ -39,7 +39,7 @@ exports.createCompany = async (req, res, send) => {
         res.status(200).send(response);
     } catch (error) {
         console.log(error);
-        res.status(400).json({response:'api not working properly, team looking into it'});
+        res.status(400).json({response:'API not working properly, team looking into it'});
     }
 }
 
@@ -55,6 +55,7 @@ exports.findCompany = async (req, res, send) => {
             })
             return;
         }
+
         let response = await amqpFunctions.rpc(company_code)
         let stocks = JSON.parse(response)
         let result = {
