@@ -58,6 +58,7 @@ exports.findCompany = async (req, res, send) => {
 
         let response = await amqpFunctions.rpc(company_code)
         let stocks = JSON.parse(response)
+        console.log(stocks);
         let result = {
             ...company[0],
             stocksValue: stocks
