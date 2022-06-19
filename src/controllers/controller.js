@@ -43,30 +43,22 @@ exports.createCompany = async (req, res, send) => {
     }
 }
 
-exports.findCompany = async (req, res, send) => {
+exports.findCompany = async (req,res,send) => {
     const company_code = req.params.companycode.toLowerCase();
     try {
-        const company = await Company.find({
-            code: company_code
-        }).lean();
-        if (company.length === 0) {
-            res.status(404).json({
-                'message': 'No company found with this name'
-            })
+        const company = await Company.find({code:company_code}).lean();
+        if(company.length === 0){
+            res.status(404).json({'message':'No company found with this name'})
             return;
         }
-
-        let response = await amqpFunctions.rpc(company_code)
-        let stocks = JSON.parse(response)
-        console.log(stocks);
-        let result = {
-            ...company[0],
-            stocksValue: stocks
-        };
+        // stocks fetching from the other database
+        const stocks = await axios.get('http://localhost:8000/api/stocks/'+company_code);
+        let result = {...company[0],stocksValue:stocks.data};
         res.status(200).json(result);
     } catch (error) {
-        res.status(400).json({
-            'message': 'problem with the api, team looking into it'
+        console.log('error in api');
+        res.status(404).json({
+            'message': 'error getting the data from database'
         });
     }
 }
