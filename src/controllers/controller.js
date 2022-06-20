@@ -52,10 +52,11 @@ exports.findCompany = async (req,res,send) => {
             return;
         }
         // stocks fetching from the other database
-        const stocks = await axios.get('http://localhost:8000/api/stocks/'+company_code);
+        const stocks = await axios.get('http://host.docker.internal:8000/api/stocks/'+company_code,{"content-type": "application/json"});
         let result = {...company[0],stocksValue:stocks.data};
         res.status(200).json(result);
     } catch (error) {
+        console.log(error);
         console.log('error in api');
         res.status(404).json({
             'message': 'error getting the data from database'

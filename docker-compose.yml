@@ -3,4 +3,4 @@ services:
     node:
         build: .
         ports:
-            - 9000:9000
+            - 9090:9090
