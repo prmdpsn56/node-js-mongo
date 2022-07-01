@@ -3,14 +3,18 @@ const companyRoutes = require('./routes/routes');
 const mongoose = require('mongoose');
 const amqp = require('amqplib');
 const { v4: uuidvv } = require('uuid');
-
+const morgan =  require('morgan');
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUI = require('swagger-ui-express');
-
+const fs = require('fs');
+const path =  require('path');
 
 const app = express();
+const accessLogStream = fs.createWriteStream(path.join(__dirname,'access.log'),{
+    flags:'a'
+})
 app.use(express.json());
-
+app.use(morgan('combined',{stream: accessLogStream}));
 const swaggerOptions = {
     swaggerDefinition: {
         info: {
@@ -72,6 +76,7 @@ exports.rpc = async (companyCode) => {
 
 
 app.use('/company', companyRoutes);
+
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));

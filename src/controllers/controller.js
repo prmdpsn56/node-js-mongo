@@ -52,7 +52,7 @@ exports.findCompany = async (req,res,send) => {
             return;
         }
         // stocks fetching from the other database
-        const stocks = await axios.get('http://host.docker.internal:8000/api/stocks/'+company_code,{"content-type": "application/json"});
+        const stocks = await axios.get('http://node-mysql-loadbalancer-1776932743.us-east-1.elb.amazonaws.com/api/stocks/'+company_code,{"content-type": "application/json"});
         let result = {...company[0],stocksValue:stocks.data};
         res.status(200).json(result);
     } catch (error) {
